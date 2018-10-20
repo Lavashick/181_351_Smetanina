@@ -1,6 +1,3 @@
-
-#include "stdafx.h"
-
 #include <iostream>
 using namespace std;
 
@@ -15,42 +12,22 @@ int main()
 {
 	int a;
 	double dbl;
-
 	
 	int * ptr_int;
 	ptr_int = &a;
 	double * ptr_dbl = &dbl;
 	
-
 	cout << "int pointer size = " << sizeof(ptr_int) << endl;
 	cout << "double pointer size = " << sizeof(ptr_dbl) << endl;
 	cout << "char pointer size = " << sizeof(char *) << endl;
 	cout << "long long pointer size = " << sizeof(long long *) << endl;
 	cout << "bool pointer size = " << sizeof(bool *) << endl;
 
-	
 	// 3. Содержимое указателя
 	cout << "ptr_int = " << ptr_int << endl;
 	cout << "ptr_dbl = " << ptr_dbl << endl;
 
 	// Содержимое указателя 
 	cout << endl << "prt_int = 0x" << ptr_int << endl;
-
-	int arr, arr1D;
-	 
-	cout << "arr =" << arr1D << endl;
-	cout << "*arr = arr[0] = " << *arr1D << endl;
-	cout << "*(arr+4) = arr[4] = " << *(arr1D+4) << endl;
-	
-
-
-	
-	
-	
-	
-	
-	
-
-	return 0;
 }
 
