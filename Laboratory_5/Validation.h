@@ -14,7 +14,7 @@ public:
 
 	static bool isName(string s, string category);
 
-	static bool isNumberOfPassport(string s, Passport::Number::Elements type);
+	static bool isNumberOfPassport(string s, Number::Elements type);
 
 	static bool isDate(string s, string category);
 

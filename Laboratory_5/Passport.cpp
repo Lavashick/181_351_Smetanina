@@ -23,6 +23,4 @@ Passport::Passport() // Констуктор
 
 	birthday = *new Date("birthday", true);
 	whenIssued = *new Date("when issued", true);
-
-	number = *new Number();
 }

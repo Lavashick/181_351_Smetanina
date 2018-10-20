@@ -50,13 +50,12 @@ bool Validation::isName(string s, string category) // Проверка ФИО
 	return true;
 }
 
-bool Validation::isNumberOfPassport(string s, Passport::Number::Elements type) // Проверка номера паспорта
+bool Validation::isNumberOfPassport(string s, Number::Elements type) // Проверка номера паспорта
 {
 	int k = s.length();
-	if (!((type == Passport::Number::Elements::NUMBER) ? k == 6 : k == 4) || !Validation::isNumber(s))
+	if (!((type == Number::Elements::NUMBER) ? k == 6 : k == 4) || !Validation::isNumber(s))
 	{
-		cout << "Error: enter your " << (type == Passport::Number::Elements::NUMBER) ? "number" : "serial";
-		cout << " again..." << endl;
+		cout << "Error: enter your " << ((type ==Number::Elements::NUMBER) ? "number" : "serial") << " again..." << endl;
 		return false;
 	}
 }

@@ -3,23 +3,29 @@
 #include "Sex.h"
 #include "Date.h"
 
+
+class Number
+{
+public:
+	int serial;
+	int number;
+
+	enum Elements
+	{
+		SERIAL, NUMBER
+	};
+
+	int getNumber(Elements type);
+
+	Number();
+};
+
 class Passport
 {
 public:
-	class Number
-	{
-	public:
-		int serial;
-		int number;
-		Number();
-		enum Elements
-		{
-			SERIAL, NUMBER
-		};
-		int getNumber(Passport::Number::Elements type);
-	};
+	
 
-	Number number;
+	
 
 	string surname;
 	string name;
@@ -33,7 +39,7 @@ public:
 	string issuedBy;
 	Date whenIssued;
 	string departCode;
-
+	Number number;
 	string getName(string category);
 
 	Passport();
