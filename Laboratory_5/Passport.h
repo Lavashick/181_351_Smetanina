@@ -6,8 +6,20 @@
 class Passport
 {
 public:
-	int serial;
-	int number;
+	class Number
+	{
+	public:
+		int serial;
+		int number;
+		Number();
+		enum Elements
+		{
+			SERIAL, NUMBER
+		};
+		int getNumber(Passport::Number::Elements type);
+	};
+
+	Number number;
 
 	string surname;
 	string name;
@@ -23,8 +35,6 @@ public:
 	string departCode;
 
 	string getName(string category);
-
-	Date getDate(string category);
 
 	Passport();
 };

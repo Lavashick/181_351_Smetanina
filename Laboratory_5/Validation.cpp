@@ -3,7 +3,13 @@
 #include "Error.h"
 #include "Date.h"
 #include "Validation.h"
+#include "Passport.h"
 using namespace std;
+
+
+// ПРОВЕРКИ
+
+
 
 bool Validation::isLowChar(char c)  // Маленькая ли буква
 {
@@ -22,7 +28,6 @@ bool Validation::isNumber(string s)  // Число ли это
 			return false;
 	return true;
 }
-
 
 bool Validation::isName(string s, string category) // Проверка ФИО 
 {
@@ -45,17 +50,17 @@ bool Validation::isName(string s, string category) // Проверка ФИО
 	return true;
 }
 
-
-bool Validation::isSerial(string s) // Проверка серии паспорта
-{ // КОСЯЯЯК
-
+bool Validation::isNumberOfPassport(string s, Passport::Number::Elements type) // Проверка номера паспорта
+{
 	int k = s.length();
-	if (!(k == 4) && !Validation::isNumber(s))
+	if (!((type == Passport::Number::Elements::NUMBER) ? k == 6 : k == 4) || !Validation::isNumber(s))
 	{
-		cout << "Error: enter your serial again..." << endl;
+		cout << "Error: enter your " << (type == Passport::Number::Elements::NUMBER) ? "number" : "serial";
+		cout << " again..." << endl;
 		return false;
 	}
 }
+
 
 bool Validation::isDate(string s, string category) // Проверка даты  00.00.0000
 {
@@ -90,5 +95,12 @@ bool Validation::isDate(string s, string category) // Проверка даты  00.00.0000
 
 bool Validation::isBirthdayYear(string s)
 {
-	return Date::getYear(s) >= 1900 && Date::getYear(s) <= 2018;
+	if (!(Date::getYear(s) >= 1900 && Date::getYear(s) <= 2018))
+	{
+		printError("birthday");
+		return false;
+	}
+	else {
+		return true;
+	}
 }

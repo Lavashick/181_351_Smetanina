@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "Passport.h"
 using namespace std;
 
 class Validation
@@ -13,7 +14,7 @@ public:
 
 	static bool isName(string s, string category);
 
-	static bool isSerial(string s);
+	static bool isNumberOfPassport(string s, Passport::Number::Elements type);
 
 	static bool isDate(string s, string category);
 

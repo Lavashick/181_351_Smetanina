@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "Date.h"
+#include "Validation.h"
 using namespace std;
 
 int Date::getDay(string s)
@@ -21,11 +22,26 @@ int Date::getYear(string s)
 	return stoi(number);
 }
 
+string Date::getDate(string category, bool isBirthday) // Метод получения даты
+{
+	string inputText;
+	do
+	{
+		cout << "Enter " << category << ": ";
+		cin >> inputText;
+	} while (!Validation::isDate(inputText, category) || !(isBirthday && Validation::isBirthdayYear(inputText)));
+	cout << "Your " << category << ": " << inputText << endl;
+
+	return inputText;
+}
+
 Date::Date() { }
 
-Date::Date(int day, int mounth, int year)
+Date::Date(string category, bool isBirthday)
 {
-	this->day = day;
-	this->mounth = mounth;
-	this->year = year;
+	string date = getDate(category, isBirthday);
+
+	day = getDay(date);
+	mounth = getMounth(date);
+	year = getYear(date);
 }
