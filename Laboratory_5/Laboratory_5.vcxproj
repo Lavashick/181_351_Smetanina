@@ -152,11 +152,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Main.cpp" />
     <ClCompile Include="Passport.cpp" />
     <ClCompile Include="Sex.cpp" />
     <ClCompile Include="Date.cpp" />
     <ClCompile Include="Error.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="Validation.cpp" />
   </ItemGroup>
   <ItemGroup>
