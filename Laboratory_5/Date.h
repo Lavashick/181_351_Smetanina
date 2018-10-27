@@ -15,8 +15,9 @@ public:
 
 	static int getYear(string s);
 
-	string getDate(string category, bool isBirthday);
-
 	Date();
 	Date(string category, bool isBirthday);
+
+private:
+	string getDate(string category, bool isBirthday);
 };

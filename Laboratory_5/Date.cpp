@@ -30,7 +30,6 @@ string Date::getDate(string category, bool isBirthday) // Метод получения даты
 		cout << "Enter " << category << ": ";
 		cin >> inputText;
 	} while (!Validation::isDate(inputText, category) || !(isBirthday && Validation::isBirthdayYear(inputText)));
-	cout << "Your " << category << ": " << inputText << endl;
 
 	return inputText;
 }

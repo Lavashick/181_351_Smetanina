@@ -19,4 +19,8 @@ public:
 	static bool isDate(string s, string category);
 
 	static bool isBirthdayYear(string s);
+
+	static bool isSex(string s);
+
+	static bool isDepartCode(string s);
 };

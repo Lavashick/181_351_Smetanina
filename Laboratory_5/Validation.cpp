@@ -103,3 +103,27 @@ bool Validation::isBirthdayYear(string s)
 		return true;
 	}
 }
+
+bool Validation::isSex(string s)
+{
+	if (s != "male" && s != "female")
+	{
+		printError("sex");
+		return false;
+	}
+	else {
+		return true;
+	}
+}
+
+bool Validation::isDepartCode(string s)
+{
+	if (s.length() != 7 || s[3] != '-' || !isNumber({ s[0], s[1], s[2] }) || !isNumber({ s[4], s[5], s[6] }))
+	{
+		printError("depart code");
+		return false;
+	}
+	else {
+		return true;
+	}
+}
