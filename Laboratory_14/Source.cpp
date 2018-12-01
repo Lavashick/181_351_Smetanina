@@ -42,18 +42,21 @@ static int writer(char *data,
 
 int main()
 {
+	setlocale(LC_ALL, "Russian");
 	CURL *curl = nullptr;
 	std::string buffer;
 	CURLcode res;
 	curl = curl_easy_init();
 	if (curl) {
-		curl_easy_setopt(curl, CURLOPT_URL, "https://www.sravni.ru/bank/sberbank-rossii/valjuty/moskva/");
+		curl_easy_setopt(curl, CURLOPT_URL, "https://www.sberbank.ru/ru/person");
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writer);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
 		res = curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
 	}
-	std::cout << buffer << std::endl;
+	int c = buffer.find("<div class=\"kit - heading kit - heading_s pr - currency__header\">USD<\/div>");
+	for (int i = c; i <= c + 10; i++)
+		std::cout << buffer[i];
 	getchar();
 	return 0;
 }
