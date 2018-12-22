@@ -57,6 +57,6 @@ public:
 	void print();
 	 // 22
 	// Осуществляет поиск последоватеьности символов *char или строку в строке класса
-	bool find(string str); 
-	bool find(char* array);
+	int find(string str); 
+	int find(char* array, int length);
 };

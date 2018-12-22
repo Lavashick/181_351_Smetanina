@@ -119,8 +119,42 @@ MyString MyString::operator+(const MyString & other) {
 }
 */
 
-bool MyString::find(char* array) {
+int MyString::find(char* array, int length) {
+	int count = 0;
+	int index = 0;
+	for (int i = 0; i < this->length; i++) {
+		if (this->array[i] == array[count]) {
+			if (count == 0)
+				index = i;
+			count++;
+			if (count == length)
+				return index;			
+		}
+		else {
+			count = 0;
+		}
+	}
+	cout << "String isn't find" << endl;
+	return -1;
+}
 
+int MyString::find(string str) {
+	int count = 0;
+	int index = 0;
+	for (int i = 0; i < this->length; i++) {
+		if (this->array[i] == str[count]) {
+			if (count == 0)
+				index = i;
+			count++;
+			if (count == str.length())
+				return index;
+		}
+		else {
+			count = 0;
+		}
+	}
+	cout << "String isn't find" << endl;
+	return -1;
 }
 
 
