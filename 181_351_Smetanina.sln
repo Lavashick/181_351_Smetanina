@@ -37,6 +37,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Laboratory_16", "Laboratory
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Laboratory_17", "Laboratory_17\Laboratory_17.vcxproj", "{C5F70596-1E1C-4F89-8B6A-BFBFEB23C7B2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Laboratory_derevo", "Laboratory_derevo\Laboratory_derevo.vcxproj", "{46ED0ED2-73E7-4C0F-BB09-8052033CD4AF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Laboratory_17_openssl", "Laboratory_17_openssl\Laboratory_17_openssl.vcxproj", "{8D25618C-3A68-45E7-9B1F-B53518E0DC34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -181,6 +185,22 @@ Global
 		{C5F70596-1E1C-4F89-8B6A-BFBFEB23C7B2}.Release|x64.Build.0 = Release|x64
 		{C5F70596-1E1C-4F89-8B6A-BFBFEB23C7B2}.Release|x86.ActiveCfg = Release|Win32
 		{C5F70596-1E1C-4F89-8B6A-BFBFEB23C7B2}.Release|x86.Build.0 = Release|Win32
+		{46ED0ED2-73E7-4C0F-BB09-8052033CD4AF}.Debug|x64.ActiveCfg = Debug|x64
+		{46ED0ED2-73E7-4C0F-BB09-8052033CD4AF}.Debug|x64.Build.0 = Debug|x64
+		{46ED0ED2-73E7-4C0F-BB09-8052033CD4AF}.Debug|x86.ActiveCfg = Debug|Win32
+		{46ED0ED2-73E7-4C0F-BB09-8052033CD4AF}.Debug|x86.Build.0 = Debug|Win32
+		{46ED0ED2-73E7-4C0F-BB09-8052033CD4AF}.Release|x64.ActiveCfg = Release|x64
+		{46ED0ED2-73E7-4C0F-BB09-8052033CD4AF}.Release|x64.Build.0 = Release|x64
+		{46ED0ED2-73E7-4C0F-BB09-8052033CD4AF}.Release|x86.ActiveCfg = Release|Win32
+		{46ED0ED2-73E7-4C0F-BB09-8052033CD4AF}.Release|x86.Build.0 = Release|Win32
+		{8D25618C-3A68-45E7-9B1F-B53518E0DC34}.Debug|x64.ActiveCfg = Debug|x64
+		{8D25618C-3A68-45E7-9B1F-B53518E0DC34}.Debug|x64.Build.0 = Debug|x64
+		{8D25618C-3A68-45E7-9B1F-B53518E0DC34}.Debug|x86.ActiveCfg = Debug|Win32
+		{8D25618C-3A68-45E7-9B1F-B53518E0DC34}.Debug|x86.Build.0 = Debug|Win32
+		{8D25618C-3A68-45E7-9B1F-B53518E0DC34}.Release|x64.ActiveCfg = Release|x64
+		{8D25618C-3A68-45E7-9B1F-B53518E0DC34}.Release|x64.Build.0 = Release|x64
+		{8D25618C-3A68-45E7-9B1F-B53518E0DC34}.Release|x86.ActiveCfg = Release|Win32
+		{8D25618C-3A68-45E7-9B1F-B53518E0DC34}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
