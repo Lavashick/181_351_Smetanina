@@ -17,6 +17,7 @@ class Tree {
 		void setChild(List* newList);
 		void setBrother(List* newList);
 		List(int data);
+		void remove();
 		void print(List* list);
 	};
 
@@ -26,6 +27,7 @@ public:
 	bool find(int data);
 	void insert(int data);
 	void print();
+	void removeAll();
 
 	Tree(int data);
 };

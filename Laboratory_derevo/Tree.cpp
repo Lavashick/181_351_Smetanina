@@ -47,3 +47,7 @@ bool Tree::find(int data) {
 void Tree::print() {
 	root->print(root);
 }
+
+void Tree::removeAll() {
+	root->remove();
+}

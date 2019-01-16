@@ -25,4 +25,6 @@ int main()
 	tree.find(56);
 
 	tree.print();
+
+	tree.removeAll();
 }

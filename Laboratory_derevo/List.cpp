@@ -7,17 +7,13 @@ Tree::List::List(int data) {
 }
 
 bool Tree::List::find(int data) { // data - число, которое мы ищем
-	while (this->child != NULL) { // Пока левая ветка не пустая:
+	if (this->child != NULL) { // Пока левая ветка не пустая:
 		if (this->child->find(data)) 
 			return true; // Сравниваем, совпадает ли в рекурсии число, если найдено, то возвращает true
-		else
-			break;
 	}
-	while (this->brother != NULL) {
+	if (this->brother != NULL) {
 		if (this->brother->find(data))
 			return true;
-		else
-			break;
 	}
 	if (this->data == data) {
 		std::cout << "Number " << data << " was find" << std::endl;
@@ -65,4 +61,19 @@ void Tree::List::print(List* list) {
 
 	tabs--;
 	return;
+}
+
+void Tree::List::remove() {
+	if (this->child != NULL) {
+		this->child->remove();
+		this->child = NULL;
+	}
+
+	if (this->brother != NULL) {
+		this->brother->remove();
+		this->brother = NULL;
+	}
+
+	std::cout << "List " << this << " was delete" << std::endl;
+	delete(this);
 }
