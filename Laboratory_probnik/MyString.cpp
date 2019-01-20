@@ -1,6 +1,7 @@
 #include "MyString.h"
 
 
+
 MyString::MyString() {  
 	this->array = new char[0]; // Создаем новый массив
 	this->length = 0; // Обнуляем длину 
@@ -97,7 +98,7 @@ void MyString::cut(int length, int position) {
 		cout << "Error" << endl;
 		return;
 	}
-	char* newArray = new char[this->length - length]; // Создали новый массив с учетом выччтенной строки
+	char* newArray = new char[this->length - length]; // Создали новый массив с учетом вычтенной строки
 	for (int i = 0; i < position; i++) // Заполняем первую часть нового массива
 		newArray[i] = this->array[i];
 	for (int i = position + length; i < this->length; i++) //
@@ -155,9 +156,47 @@ int MyString::find(string str) {
 	}
 	cout << "String isn't find" << endl;
 	return -1;
+	}
+
+
+void MyString::save(string address_file) {
+	fstream file_save;
+	file_save.open(address_file, fstream::out);
+	if (!file_save.is_open()) {
+		cout << "File is not open" << endl;
+		return;
+	}
+	else {
+		cout << "File is open" << endl;
+	}
+	for (int i = 0; i < this->length; i++)
+		file_save << array[i];
+	file_save.close();
 }
 
 
+
+void MyString::load(string address_file) { // Не забыть создать новый массив!!!
+	fstream file_load;
+	file_load.open(address_file, fstream::in);
+	if (!file_load.is_open()) {
+		cout << "File is not open" << endl;
+		return;
+	}
+	else {
+		cout << "File is open" << endl;
+	}
+	string text;
+	getline(file_load, text);
+	cout << "Text from file: " << text << endl;
+	this->length = text.length();
+	char* newArray = new char[this->length];
+	for (int i = 0; i < this->length; i++) 
+		newArray[i] = text[i];
+	delete[] this->array;
+	this->array = newArray;
+	file_load.close();
+}
 	
 
 

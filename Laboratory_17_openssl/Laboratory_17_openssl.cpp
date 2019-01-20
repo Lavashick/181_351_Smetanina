@@ -151,6 +151,7 @@ int main()
 	if (!file_cryption) {
 		std::cout << "Ошибка файла" << std::endl; // Обработка ошибки открытия файла
 	}
+
 	char buffer[256] = { 0 }; 
 	char * out_buf[256] = { 0 }; 
 	unsigned int number_of_bytes = 0;
@@ -176,7 +177,7 @@ int main()
 
 	fstream filecryingmore, just_file;// Файлы для шифрования и дешифрования
 
-	filecryingmore.open("filecry.txt", std::fstream::in | std::fstream::binary); // Открываем их опять бинарными
+	filecryingmore.open("file_cryption.txt", std::fstream::in | std::fstream::binary); // Открываем их опять бинарными
 	just_file.open("just_file.txt", std::fstream::out | std::fstream::binary);
 
 
@@ -215,3 +216,4 @@ int main()
 
 
 */
+

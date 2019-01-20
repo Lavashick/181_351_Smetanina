@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <string>
 using namespace std;
 
 class MyString {
@@ -59,4 +60,11 @@ public:
 	// Осуществляет поиск последоватеьности символов *char или строку в строке класса
 	int find(string str); 
 	int find(char* array, int length);
+
+	// 23
+	// Записывает в файл load
+	void save(string adress_file);
+
+	// Читает из файла
+	void load(string adress_file);
 };
