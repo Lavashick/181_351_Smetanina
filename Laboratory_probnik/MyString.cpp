@@ -7,12 +7,28 @@ MyString::MyString() {
 	this->length = 0; // Обнуляем длину 
 }
 
+char* MyString::getArray() {
+	return this->array;
+}
+
+int MyString::getLength() {
+	return this->length;
+}
+
 
 MyString::MyString(char* array, int lenght) { // Конструктор, копирующий содержимое из массива char*
 	this->array = new char[lenght]; // Создаем новый массив
 	for (int i = 0; i < lenght; i++)
 		this->array[i] = array[i]; // Переприсваиваем массив
 	this->length = lenght; // Переприсваеваем длину
+}
+
+void MyString::setArray(string str) {
+	delete[] this->array;
+	this->array = new char[str.length()];
+	this->length = str.length();
+	for (int i = 0; i < this->length; i++)
+		this->array[i] = str[i];
 }
 
 MyString::MyString(MyString* a) { 
@@ -71,7 +87,7 @@ void MyString::insert(char* array, int position, int length) {
 		newArray[i + position] = array[i]; // Переприсваиваем
 	for (int i = position; i < this->length; i++) // Заполняем массив после вставки
 		newArray[length + i] = this->array[i]; // Переприсваиваем
-	this->length += length; // Заменила длину
+	this->length += strlen(array); // Заменила длину
 	delete[] this->array; // Удялаем старый массив
 	this->array = newArray; // Заменяем старый массив на новый
 }
@@ -114,11 +130,6 @@ void MyString::print() {
 	cout << endl;
 }
 
-/*
-MyString MyString::operator+(const MyString & other) {
-	MyString 
-}
-*/
 
 int MyString::find(char* array, int length) {
 	int count = 0;
@@ -198,11 +209,88 @@ void MyString::load(string address_file) { // Не забыть создать новый массив!!!
 	file_load.close();
 }
 	
+MyString MyString::operator+(MyString s1) {
+	char* newArray = new char[this->length + s1.length];
+	for (int i = 0; i < this->length; i++) 
+		newArray[i] = this->array[i];
+	for (int i = 0; i < s1.length; i++)
+		newArray[i + this->length] = s1.array[i];
 
+	MyString newStr = *new MyString(newArray, this->length + s1.length);
+	return newStr;
+}
 
+ostream& operator<<(ostream &s, MyString &s1) {
+	for (int i = 0; i < s1.getLength(); i++)
+		s << s1.getArray()[i];
+	return s;
+}
 	
+istream& operator>>(istream &s, MyString &s1) {
+	string str;
+	s >> str;
+	s1.setArray(str);
+	return s;
+}
 
 
-	
+void MyString::encrypt() {
+	unsigned char *plaintext = (unsigned char*)this->array;
+	int plaintext_len = strlen((char *)plaintext); // длина текста
+	unsigned char *key = (unsigned char *)"0123456789"; // пароль (ключ)
+	unsigned char *iv = (unsigned char *)"0123456789012345"; // инициализирующий вектор, рандомайзер
+	unsigned char cryptedtext[256]; // зашифрованный результат
+	EVP_CIPHER_CTX *ctx; 
+	ctx = EVP_CIPHER_CTX_new(); // создание структуры с настройками метода
+	EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv); 
+	// Процесс шифрования
+	int len;
+	EVP_EncryptUpdate(ctx, cryptedtext, &len, plaintext, plaintext_len); 
+	int cryptedtext_len = len;
+	EVP_EncryptFinal_ex(ctx, cryptedtext + len, &len);
+	cryptedtext_len += len;
+	this->length = cryptedtext_len;
+	EVP_CIPHER_CTX_free(ctx); // Удаление структуры
+	// присваивание зашифрованных данных
+	for (int i = 0; i < cryptedtext_len; i++)
+	{
+		this->array[i] = cryptedtext[i];
+	}
+	cout << endl;
+}
 
 
+
+
+/*
+void MyString::decrypt() {
+	unsigned char *plaintext = (unsigned char*)this->array;
+	int plaintext_len = strlen((char *)plaintext); // длина текста
+	unsigned char *key = (unsigned char *)"0123456789"; // пароль (ключ)
+	unsigned char *iv = (unsigned char *)"0123456789012345"; // инициализирующий вектор, рандомайзер
+	unsigned char cryptedtext[256]; // зашифрованный результат
+	unsigned char decryptedtext[256]; // расшифрованный результат
+	EVP_CIPHER_CTX *ctx;
+	ctx = EVP_CIPHER_CTX_new(); // создание структуры с настройками метода
+	EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv);
+	// Процесс шифрования
+	int len;
+	EVP_EncryptUpdate(ctx, cryptedtext, &len, plaintext, plaintext_len);
+	int cryptedtext_len = len;
+	EVP_EncryptFinal_ex(ctx, cryptedtext + len, &len);
+	cryptedtext_len += len;
+	EVP_CIPHER_CTX_free(ctx); // Удаление структуры
+
+
+
+	ctx = EVP_CIPHER_CTX_new(); // создание структуры с настройками метода
+	EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv); // инициализация методом AES, ключом и вектором
+	EVP_DecryptUpdate(ctx, decryptedtext, &len, cryptedtext, cryptedtext_len);  // СОБСТВЕННО, ШИФРОВАНИЕ
+	int dectypted_len = len;
+	EVP_DecryptFinal_ex(ctx, decryptedtext + len, &len);
+	dectypted_len += len;
+	EVP_CIPHER_CTX_free(ctx);
+	decryptedtext[dectypted_len] = '\0';
+	cout << decryptedtext << endl;
+}
+*/

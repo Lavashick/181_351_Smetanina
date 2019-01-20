@@ -2,12 +2,30 @@
 #include <string>
 #include <fstream>
 #include <string>
+#include <openssl/conf.h> // функции, структуры и константы настройки OpenSSL
+#include <openssl/conf.h>
+#include <openssl/evp.h> // сами криптогрфические функции https://wiki.openssl.org/index.php/EVP
+#include <openssl/err.h> // коды внутренних ошибок OpenSSL и их расшифровка
+#include <openssl/aes.h>
+
+#pragma comment (lib, "ws2_32.LIB")
+#pragma comment (lib, "gdi32.LIB")
+#pragma comment (lib, "advapi32.LIB")
+#pragma comment (lib, "crypt32")
+#pragma comment (lib, "user32")
+#pragma comment (lib, "wldap32")
 using namespace std;
 
+
 class MyString {
-public:
+private:
 	char* array; // Массив символов
 	int length; // Длина массива символов
+public:
+
+	char* getArray();
+	int getLength();
+	void setArray(string str);
 
 	// 2
 	// Конструктор нулевой длины без параметров
@@ -66,5 +84,20 @@ public:
 	void save(string adress_file);
 
 	// Читает из файла
-	void load(string adress_file);
+	void load(string adress_file);   
+
+	// Перегрузка оператора +
+	MyString operator+(MyString s1);
+
+	// Метод для шифрования
+	void encrypt();
+
+	// Метод для дешифрования 
+	void decrypt();
 };
+
+// Перегрузка оператора <<
+ostream& operator<<(ostream &s, MyString &s1); // Передаем ссылку на поток и то, что надо печатать
+
+// Перегрузка оператора >>
+istream& operator>>(istream &s, MyString &s1);
