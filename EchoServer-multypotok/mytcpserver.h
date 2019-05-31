@@ -4,27 +4,21 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QMap>
-#include <QSqlDatabase>
 
+// Класс работы с нашим сервером
 class MyTcpServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyTcpServer(QObject *parent = 0);
-    void send_to_client (QString message, QTcpSocket* clientSocket);
+    explicit MyTcpServer(quint16 port, QObject *parent = nullptr);
+    void sendToClient(QTcpSocket* pSocket, const QString& str);
 public slots:
     void slotNewConnection();
-    void slotServerRead();
-    void slotClientDisconnected();
+    void slotReadClient();
 
 private:
-    QTcpServer *tcpServer;
-    int server_status;
-    QMap<int,QTcpSocket *> SClients;
-    QSqlDatabase db; /*= nullptr;*/ // а не, вот у меня короче висит проблема с первоначальным занулением. пока оставим так.
+    QTcpServer *tcpServer; // Сам сервер
+    quint16 m_nNextBlockSize;
 };
-
-
 
 #endif // MYTCPSERVER_H

@@ -34,6 +34,8 @@ private slots:
     void on_clearBtn_clicked();
     void slot_connected();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::Dialog *ui;
     DialogAdmin *window;

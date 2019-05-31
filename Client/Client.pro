@@ -1,14 +1,16 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2019-05-18T01:32:04
+# Project created by QtCreator 2019-05-31T18:48:48
 #
 #-------------------------------------------------
 
-QT       += core gui sql network
+QT       += core gui
+QT       += core network
+QT       += sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Smetatina__181-351
+TARGET = Client
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -26,19 +28,23 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        dialog.cpp
+        mainwindow.cpp \
+    client.cpp \
+    dbservice.cpp \
+    user.cpp \
+    qbytearrayparcer.cpp
 
 HEADERS += \
-        dialog.h
+        mainwindow.h \
+    client.h \
+    dbservice.h \
+    user.h \
+    qbytearrayparcer.h
 
 FORMS += \
-        dialog.ui
+        mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
-DISTFILES +=
-
-RESOURCES +=

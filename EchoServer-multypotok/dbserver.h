@@ -2,10 +2,21 @@
 #define DBSERVER_H
 
 #include <QString>
-#include <QsqlDatabase> // если он ругается, значит не подключено в самом проекте
+#include <QsqlDatabase>
 
-QString authorize(QString login, QString password, QSqlDatabase& db);
-bool isOpenDataBase(QSqlDatabase& db, QString DataBaseName);
-QString select(QString col, QString nameOfTable, QSqlDatabase& db);
+class DBserver
+{
+public:
+    DBserver();
+
+    // Проверяет, открыта ли наша база данных
+    bool isOpenDataBase(QSqlDatabase& db);
+    // Строка, через которые будут происходить запросы
+    void selectFromDB(QString nameOfCol, QString nameOfTable, QString login, QString password,  QSqlDatabase& db);
+    // Находим  БД
+    void findDB(QSqlDatabase& db, QString nameOfDB, QString nameOfsql);
+    QString checkValue(QString nameOfTable, QString login, QString password,  QSqlDatabase& db);
+
+};
 
 #endif // DBSERVER_H

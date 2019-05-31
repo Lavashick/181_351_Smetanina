@@ -1,6 +1,6 @@
 QT += core network
 QT -= gui
-QT       += sql
+QT += sql
 
 TARGET = EchoServer
 CONFIG += console
@@ -10,9 +10,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     mytcpserver.cpp \
-    dbserver.cpp
+    dbserver.cpp \
+    someclass.cpp
 
 HEADERS += \
     mytcpserver.h \
-    dbserver.h
+    dbserver.h \
+    someclass.h
 
