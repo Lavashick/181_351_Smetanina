@@ -1,20 +1,26 @@
 #include "myserver.h"
-#include <QDataStream>
-#include <QDateTime>
+#include "dbservice.h"
+#include "console.h"
 
-QString getCurrentDateTime()
+QString getSocketAddress(QTcpSocket * socket)
 {
-    QDateTime dateTime = QDateTime::currentDateTime();
-    int year = dateTime.date().year();
-    int month = dateTime.date().month();
-    int day = dateTime.date().day();
-    QString date = QString("%1.%2.%3").arg(day).arg(month).arg(year);
-    return date + " " + dateTime.time().toString();
+    return (socket->peerAddress().toString() + ":" + QString::number(socket->peerPort()));
 }
 
-void print(QString message)
+qint32 ArrayToInt(QByteArray source)
 {
-    qDebug().noquote() << QString("%1: %2").arg(getCurrentDateTime()).arg(message);
+    qint32 temp;
+    QDataStream data(&source, QIODevice::ReadWrite);
+    data >> temp;
+    return temp;
+}
+
+QByteArray IntToArray(qint32 source) // Используем qint32 чтобы гарантировать, что размер данных имеет 4 байта
+{
+    QByteArray temp;
+    QDataStream data(&temp, QIODevice::ReadWrite);
+    data << source;
+    return temp;
 }
 
 MyServer::MyServer(quint16 port, QObject *parent) : QObject(parent)
@@ -26,60 +32,79 @@ MyServer::MyServer(quint16 port, QObject *parent) : QObject(parent)
         server->close();
         return;
     }
-    QString message = QString("Server started on %2:%3").arg(server->serverAddress().toString()).arg(server->serverPort());
-    print(message);
-    connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
+    connect(server, SIGNAL(newConnection()), SLOT(newConnection()));
+    QString message = QString("Listening %2:%3").arg(server->serverAddress().toString()).arg(server->serverPort());
+    Console::writeWithTime(message);
+    DBService::connect();
 }
 
 void MyServer::newConnection()
 {
-    QTcpSocket * socket = server->nextPendingConnection();
-    connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readSocket()));
-    print(QString("New connection from %1").arg(socket->socketDescriptor()));
-    sendToSocket(socket, "Connected");
+    while (server->hasPendingConnections())
+    {
+        QTcpSocket *socket = server->nextPendingConnection();
+        connect(socket, SIGNAL(readyRead()), SLOT(readSocket()));
+        connect(socket, SIGNAL(disconnected()), SLOT(disconnected()));
+        QByteArray *buffer = new QByteArray();
+        qint32 *s = new qint32(0);
+        buffers.insert(socket, buffer);
+        Console::writeWithTime(QString("New connection from %1:%2").arg(socket->peerAddress().toString()).arg(socket->peerPort()));
+        sizes.insert(socket, s);
+    }
 }
 
-void MyServer::sendToSocket(QTcpSocket* socket, const QString& str)
+void MyServer::sendToSocket(QTcpSocket* socket, QByteArray data)
 {
-    QByteArray arrBlock;
-    QDataStream out(&arrBlock, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_2);
-    out << quint16(0) << QTime::currentTime() << str;
+    socket->write(IntToArray(data.size())); // Отправить размер данных
+    socket->write(data); // Отправить сами данные
+}
 
-    out.device()->seek(0);
-    out << quint16(arrBlock.size() - int(sizeof(quint16)));
-
-    socket->write(arrBlock);
+void MyServer::disconnected()
+{
+    QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
+    QByteArray *buffer = buffers.value(socket);
+    qint32 *s = sizes.value(socket);
+    QString message = QString("Disconnected from %1:%2").arg(socket->peerAddress().toString()).arg(socket->peerPort());
+    Console::writeWithTime(message);
+    socket->deleteLater();
+    delete buffer;
+    delete s;
 }
 
 void MyServer::readSocket()
 {
-    QTcpSocket* clientSocket = static_cast<QTcpSocket*>(sender());
-    QDataStream in(clientSocket);
-    in.setVersion(QDataStream::Qt_4_2);
-    for (;;) {
-        if (!m_nNextBlockSize) {
-            if (clientSocket->bytesAvailable() < sizeof(quint16)) {
-                break;
+    QTcpSocket *socket = static_cast<QTcpSocket*>(sender());
+    QByteArray *buffer = buffers.value(socket);
+    qint32 *s = sizes.value(socket);
+    qint32 size = *sizes.value(socket);
+    while (socket->bytesAvailable() > 0)
+    {
+        buffer->append(socket->readAll());
+        while ((size == 0 && buffer->size() >= 4) || (size > 0 && buffer->size() >= size)) // Обрабатывать, пока есть данные
+        {
+            if (size == 0 && buffer->size() >= 4) // Если размер данных получен полностью, то сохранить его
+            {
+                size = ArrayToInt(buffer->mid(0, 4));
+                *s = size;
+                buffer->remove(0, 4);
             }
-            in >> m_nNextBlockSize;
+            if (size > 0 && buffer->size() >= size) // Если данные получены полностью, то обрабатываем их
+            {
+                // DATA
+                QByteArray data = buffer->mid(0, size);
+                buffer->remove(0, size);
+                size = 0;
+                *s = size;
+                // PRINT REQUEST
+                QString socketAddress = getSocketAddress(socket);
+                QString dataAsString = QString::fromStdString(data.toStdString());
+                Console::writeWithTime(socketAddress + ": " + dataAsString);
+
+                // GET RESPONSE
+                QByteArray response = DBService::execute(dataAsString);
+                // SEND RESPONSE
+                sendToSocket(socket, response);
+            }
         }
-
-        if (clientSocket->bytesAvailable() < m_nNextBlockSize) {
-            break;
-        }
-        QTime time;
-        QString str;
-        in >> time >> str;
-
-        QString strMessage =
-            time.toString() + " " + "Client has sended - " + str;
-
-        m_nNextBlockSize = 0;
-
-        sendToClient(clientSocket,
-                     "Server Response: Received \"" + str + "\""
-                    );
     }
 }
