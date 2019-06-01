@@ -13,3 +13,10 @@ QJsonArray * QByteArrayParcer::toJsonArray(QByteArray bytes)
     else
         return new QJsonArray(json.array());
 }
+
+QByteArray QByteArrayParcer::stringToBytes(QString string)
+{
+    QByteArray ba;
+    ba.append(string);
+    return ba;
+}

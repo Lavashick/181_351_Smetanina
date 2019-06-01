@@ -5,6 +5,9 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+/**
+ * @brief Класс пользователей
+ */
 class User {
 public:
     QString login;

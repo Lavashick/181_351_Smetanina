@@ -4,6 +4,9 @@
 #include <QDebug>
 #include <QString>
 
+/**
+ * @brief Класс работы с консолью
+ */
 class Console
 {
 public:

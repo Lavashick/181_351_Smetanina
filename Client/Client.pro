@@ -28,21 +28,32 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp \
     client.cpp \
     dbservice.cpp \
     user.cpp \
-    qbytearrayparcer.cpp
+    qbytearrayparcer.cpp \
+    dialog.cpp \
+    dialogadmin.cpp \
+    hash.cpp \
+    city.cpp \
+    human.cpp \
+    pansionat.cpp
 
 HEADERS += \
-        mainwindow.h \
     client.h \
     dbservice.h \
     user.h \
-    qbytearrayparcer.h
+    qbytearrayparcer.h \
+    dialog.h \
+    dialogadmin.h \
+    hash.h \
+    city.h \
+    human.h \
+    pansionat.h
 
 FORMS += \
-        mainwindow.ui
+    dialog.ui \
+    dialogadmin.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

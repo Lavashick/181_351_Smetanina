@@ -5,6 +5,9 @@
 static inline QByteArray IntToArray(qint32 source);
 static QTcpSocket *socket;
 
+static QString serverHost;
+static quint16 serverPort;
+
 static QHash<QTcpSocket*, QByteArray*> buffers; // Буфер для хранения данных, пока блок не будет полностью получен
 static QHash<QTcpSocket*, qint32*> sizes; // Нам нужно сохранить размер, чтобы проверить, получил ли блок полностью
 
@@ -24,6 +27,8 @@ bool Client::createSocket(QObject * parent)
 
 bool Client::connectToHost(QString host, quint16 port)
 {
+    serverHost = host;
+    serverPort = port;
     socket->connectToHost(host, port);
     return socket->waitForConnected();
 }
@@ -46,31 +51,31 @@ QByteArray IntToArray(qint32 source) // Используем qint32 чтобы �
 
 QByteArray * Client::sendData(QByteArray data)
 {
-    if(socket->state() == QAbstractSocket::ConnectedState)
+    if(socket->state() == QTcpSocket::ConnectedState)
     {
         socket->write(IntToArray(data.size())); // Отправить размер данных
         socket->write(data); // Отправить сами данные
-        socket->waitForBytesWritten();
-        socket->waitForReadyRead();
+        socket->waitForBytesWritten(); // Ожидание прочтения данных сервером
+        socket->waitForReadyRead(); // Когда сервер ответит, то сокет можно будет считать
 
         QByteArray * bytes = read();
-        qDebug() << QTime::currentTime().toString() << "IS RESPONSE: " << QByteArrayParcer::toString(*bytes);
 
         return bytes;
     }
-    else
+    else if (Client::connectToHost(serverHost, serverPort)) {
+        return Client::sendData(data);
+    } else {
         return nullptr;
+    }
 }
 
 bool Client::isConnected() {
-    return socket->isOpen();
+    return socket->state() == QTcpSocket::ConnectedState;
 }
 
 QByteArray * Client::sendData(QString data)
 {
-    QByteArray ba;
-    ba.append(data);
-    return sendData(ba);
+    return sendData(QByteArrayParcer::stringToBytes(data));
 }
 
 QByteArray * Client::read() {

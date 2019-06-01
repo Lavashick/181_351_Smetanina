@@ -4,6 +4,8 @@
 #define DB_DRIVER "QSQLITE"
 #define DB_CONNECTION_NAME "connect"
 
+#include "console.h"
+
 static QSqlDatabase db;
 static QSqlQuery queryQueue;
 
@@ -14,6 +16,8 @@ static QSqlQuery queryQueue;
 
 // Подключение базы данных
 bool DBService::connect() {
+    if (!isCreated())
+        Console::writeWithTime("DataBase was created");
     // Создание Базы данных типа QSQLite
     // QSQLite - драйвер в Qt
     db = QSqlDatabase::addDatabase(DB_DRIVER, DB_CONNECTION_NAME);
@@ -23,9 +27,17 @@ bool DBService::connect() {
     queryQueue = QSqlQuery(db);
 
     // Если не открывает нашу бд, то выводим последнюю ошибку:
-    if(!db.open())
-        qDebug() << db.lastError().text();
+    if(!db.open()) {
+        Console::writeWithTime("DataBase wasn't opened");
+        Console::writeWithTime(db.lastError().text());
+    }
+    else
+        Console::writeWithTime("DataBase was opened");
     return db.isOpen();
+}
+
+bool DBService::isCreated() {
+    return QFile::exists(DB_NAME);
 }
 
 QByteArray DBService::execute(QString query) {
@@ -58,11 +70,12 @@ void DBService::close() {
     if (!queryQueue.next()) {
         queryQueue.finish();
         db.close();
-     }
+    }
 }
 
 void DBService::remove() {
     DBService::close();
     // Удаление файла БД
-    qDebug() << QFile::remove(DB_NAME);
+    if(QFile::remove(DB_NAME))
+        Console::writeWithTime("DataBase was deleted");
 }

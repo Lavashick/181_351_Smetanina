@@ -6,19 +6,59 @@
 #include <QDebug>
 #include <QList>
 #include "user.h"
+#include "human.h"
+#include "city.h"
+#include "pansionat.h"
 
+/**
+ * @brief Работа сервера с БД
+ */
 class DBService
 {
 public:
-    static void connect();
+    /**
+     * @brief Создание таблицы юзеров
+     */
     static bool createTableUsers();
-    static int getTablesCount();
-    static void remove();
-    static void close();
-    static void addUser(QString login, QString password, int degree);
+
+    static bool createTableCities();
+    static bool createTableHumans();
+    static bool createTablePansionats();
+
+    static bool createTablePansionatCity();
+    static bool createTableHumanPansionat();
+    /**
+     * @brief Добавление юзера
+     */
+    static bool addUser(QString login, QString password, int degree);
+    static bool addCity(QString title);
+    static bool addPansionat(QString title, QString fromCity);
+    static bool addHuman(QString firstName, QString lastName, int age, QString fromPansionat);
+    /**
+     * @brief Проверка параметров юзера
+     */
     static bool checkUser(QString login, QString password);
-    static User* getUser(QString login);
-    static QList<User> getUsers();
+    /**
+     * @brief Запросить пользователя по определенному логину
+     */
+    static User * getUser(QString login);
+    static Human * getHuman(int id);
+    static City * getCity(int id);
+    static Pansionat * getPansionat(int id);
+    /**
+     * @brief Удаление пользователя
+     */
+    static bool deleteUser(QString login);
+    static bool deleteHuman(int id);
+    static bool deleteCity(int id);
+    static bool deletePansionat(int id);
+    /**
+     * @brief Запрашивает всех юзеров из БД
+     */
+    static QList<User> getUsers( QString login = "" );
+    static QList<Human> getHumans( bool isWithPansionats = false, QString firstName = "", QString lastName = "" );
+    static QList<City> getCities( QString title = "" );
+    static QList<Pansionat> getPansionats( bool isWithCities = false, QString title = "" );
 };
 
 #endif // DBSERVICE_H

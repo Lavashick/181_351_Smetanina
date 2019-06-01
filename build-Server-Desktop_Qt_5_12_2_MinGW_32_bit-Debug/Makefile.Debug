@@ -470,7 +470,15 @@ debug/dbservice.o: ../Server/dbservice.cpp ../Server/dbservice.h \
 		D:/Qt/5.12.2/mingw73_32/include/QtCore/qfile.h \
 		D:/Qt/5.12.2/mingw73_32/include/QtCore/qfiledevice.h \
 		D:/Qt/5.12.2/mingw73_32/include/QtSql/QSqlResult \
-		D:/Qt/5.12.2/mingw73_32/include/QtSql/qsqlresult.h
+		D:/Qt/5.12.2/mingw73_32/include/QtSql/qsqlresult.h \
+		../Server/console.h \
+		D:/Qt/5.12.2/mingw73_32/include/QtCore/QJsonArray \
+		D:/Qt/5.12.2/mingw73_32/include/QtCore/qjsonarray.h \
+		D:/Qt/5.12.2/mingw73_32/include/QtCore/qjsonvalue.h \
+		D:/Qt/5.12.2/mingw73_32/include/QtCore/QJsonObject \
+		D:/Qt/5.12.2/mingw73_32/include/QtCore/qjsonobject.h \
+		D:/Qt/5.12.2/mingw73_32/include/QtCore/QJsonDocument \
+		D:/Qt/5.12.2/mingw73_32/include/QtCore/qjsondocument.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\dbservice.o ..\Server\dbservice.cpp
 
 debug/console.o: ../Server/console.cpp ../Server/console.h \
