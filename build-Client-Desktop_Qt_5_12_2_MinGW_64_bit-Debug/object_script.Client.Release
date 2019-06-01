@@ -5,7 +5,6 @@ release/user.o
 release/qbytearrayparcer.o
 release/dialog.o
 release/dialogadmin.o
-release/dialogeditusers.o
 release/hash.o
 release/city.o
 release/human.o
@@ -13,4 +12,3 @@ release/pansionat.o
 release/moc_client.o
 release/moc_dialog.o
 release/moc_dialogadmin.o
-release/moc_dialogeditusers.o

@@ -5,7 +5,6 @@ debug/user.o
 debug/qbytearrayparcer.o
 debug/dialog.o
 debug/dialogadmin.o
-debug/dialogeditusers.o
 debug/hash.o
 debug/city.o
 debug/human.o
@@ -13,4 +12,3 @@ debug/pansionat.o
 debug/moc_client.o
 debug/moc_dialog.o
 debug/moc_dialogadmin.o
-debug/moc_dialogeditusers.o

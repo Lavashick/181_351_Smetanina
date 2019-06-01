@@ -14,6 +14,7 @@
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTableView>
 
@@ -27,6 +28,9 @@ public:
     QLabel *label;
     QPushButton *editButton;
     QPushButton *deleting;
+    QLineEdit *searchEdit;
+    QPushButton *searchButton;
+    QPushButton *updateButton;
 
     void setupUi(QDialog *DialogAdmin)
     {
@@ -59,6 +63,15 @@ public:
         deleting = new QPushButton(DialogAdmin);
         deleting->setObjectName(QString::fromUtf8("deleting"));
         deleting->setGeometry(QRect(50, 300, 261, 23));
+        searchEdit = new QLineEdit(DialogAdmin);
+        searchEdit->setObjectName(QString::fromUtf8("searchEdit"));
+        searchEdit->setGeometry(QRect(50, 230, 113, 20));
+        searchButton = new QPushButton(DialogAdmin);
+        searchButton->setObjectName(QString::fromUtf8("searchButton"));
+        searchButton->setGeometry(QRect(170, 230, 75, 23));
+        updateButton = new QPushButton(DialogAdmin);
+        updateButton->setObjectName(QString::fromUtf8("updateButton"));
+        updateButton->setGeometry(QRect(620, 10, 75, 23));
 
         retranslateUi(DialogAdmin);
 
@@ -72,6 +85,8 @@ public:
         label->setText(QApplication::translate("DialogAdmin", "Table", nullptr));
         editButton->setText(QApplication::translate("DialogAdmin", "Edit ", nullptr));
         deleting->setText(QApplication::translate("DialogAdmin", "Delete", nullptr));
+        searchButton->setText(QApplication::translate("DialogAdmin", "Search", nullptr));
+        updateButton->setText(QApplication::translate("DialogAdmin", "Update", nullptr));
     } // retranslateUi
 
 };
