@@ -34,14 +34,17 @@ private slots:
 
 private:
     User* user;
-    QList<User> users;
-    QList<Human> humans;
-    QList<User> tempUsers;
-    QList<Human> tempHumans;
+
     Ui::DialogAdmin *ui;
-    void updateUserTable();
-    void updateHumanTable();
     QStandardItemModel *model;
+
+    QList<User> users;
+    QList<User> tempUsers;
+    void updateUserTable();
+
+    QList<Human> humans;
+    QList<Human> tempHumans;
+    void updateHumanTable();
 };
 
 #endif // DIALOGADMIN_H

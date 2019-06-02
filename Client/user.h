@@ -10,12 +10,11 @@
  */
 class User {
 public:
+    User(QJsonObject json);
+
     QString login;
     QString password;
     int degree;
-
-    User(QString login, QString password, int degree);
-    User(QJsonObject json);
 };
 
 

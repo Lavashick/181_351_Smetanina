@@ -1,5 +1,4 @@
 #include "client.h"
-#include <QTime>
 #include "qbytearrayparcer.h"
 
 #include "cipher.h"

@@ -36,7 +36,7 @@ public slots:
     static QByteArray * sendData(QString data);
 private:
     /**
-     * @brief Чттение сервером ответа от клиета
+     * @brief Чтение сервером ответа от клиента
      */
     static QByteArray * read();
 };

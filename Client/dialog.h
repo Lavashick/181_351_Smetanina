@@ -21,13 +21,12 @@ class Dialog : public QDialog
 public:
     explicit Dialog(QWidget *parent = nullptr);
     ~Dialog();
-    User *user = nullptr;
 
+    User *user = nullptr;
     void resetPasswordField();
 
 private slots:
     void on_enterBtn_clicked();
-
     void on_clearBtn_clicked();
 
 private:
