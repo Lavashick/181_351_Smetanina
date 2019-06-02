@@ -77,8 +77,10 @@ int main(int argc, char *argv[])
 
     testAES();
 
+    // ТУТ МОЖНО ПОДКЛЮЧИТЬ КОМП ПО АЙПИ
+
     Client::createSocket();
-    Client::connectToHost("127.0.0.1", 8181);
+    Client::connectToHost("192.168.0.13", 8181); // Локальный - 127.0.0.1
 
     fillDB();
 

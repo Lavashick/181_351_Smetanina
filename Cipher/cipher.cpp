@@ -1,57 +1,21 @@
 #include "cipher.h"
 
-//QString getStringFromUnsignedChar(unsigned char *str)
-//{
-
-//    QString s;
-//    QString result = "";
-//    int rev = strlen((char *)str);
-
-//    // Print String in Reverse order....
-//    for ( int i = 0; i<rev; i++)
-//        {
-//           s = QString("%1").arg(str[i],0,16);
-
-//           if(s == "0"){
-//              s="00";
-//             }
-//         result.append(s);
-
-//         }
-//   return result;
-//}
-
-//unsigned char * getUnsignedCharFromString(QString str)
-//{
-//    QByteArray ba = str.toLocal8Bit();
-//    return (unsigned char *)strdup(ba.constData());
-//}
-
-// init
+// Инициализация класса шифрования
 Cipher::Cipher()
 {
-    initalize();
-}
-
-void Cipher::initalize()
-{
-    ERR_load_CRYPTO_strings();
-    OpenSSL_add_all_algorithms();
+    ERR_load_CRYPTO_strings(); // Регистрация строк ошибок
+    OpenSSL_add_all_algorithms(); // Добавляет алгоритмы
     OPENSSL_config(nullptr);
 }
 
-// deinit
+// Деструктор класса шифрования
 Cipher::~Cipher()
 {
-    finalize();
-}
-
-void Cipher::finalize()
-{
-    EVP_cleanup();
     ERR_free_strings();
+    EVP_cleanup(); // Добавление алгоритмов во внутреннюю таблицу
 }
 
+// Генератор рандомных байтов
 QByteArray Cipher::randomBytes(int size)
 {
     unsigned char arr[size];
@@ -61,16 +25,26 @@ QByteArray Cipher::randomBytes(int size)
     return buffer;
 }
 
-// Шифрование AES
+
+
+
+
+
+/**
+ * @brief Шифровка данных
+ * @param passphrase - Ключ шифрования
+ * @param data - Данные для шифровки
+ * @return Шифрованные данные
+ */
 QByteArray Cipher::encryptAES(QByteArray passphrase, QByteArray &data)
 {
-    QByteArray msalt = randomBytes(SALTSIZE);
-    int rounds = 1;
-    unsigned char key[KEYSIZE];
-    unsigned char iv[IVSIZE];
+    QByteArray msalt = randomBytes(SALTSIZE); // Создаем соль (рандом)
+    int rounds = 1; // Кол-во прохождений
+    unsigned char key[KEYSIZE]; // Переменная для ключа
+    unsigned char iv[IVSIZE]; // Переменная для инициализирующего вектора
 
-    const unsigned char * salt = (const unsigned char *) msalt.constData();
-    const unsigned char * password = (const unsigned char *) passphrase.constData();
+    const unsigned char * salt = reinterpret_cast<const unsigned char *>(msalt.constData()); // Перевод соли с unsigned char*
+    const unsigned char * password = reinterpret_cast<const unsigned char *>(passphrase.constData()); // Перевод ключа с unsigned char*
 
     int i = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), salt, password, passphrase.length(), rounds, key, iv);
 
@@ -127,6 +101,11 @@ QByteArray Cipher::encryptAES(QByteArray passphrase, QByteArray &data)
 
     return finished;
 }
+
+
+
+
+
 
 // Дешифровка AES
 QByteArray Cipher::decryptAES(QByteArray passphrase, QByteArray &data)
