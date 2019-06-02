@@ -18,7 +18,7 @@ Cipher::~Cipher()
 // Генератор рандомных байтов
 QByteArray Cipher::randomBytes(int size)
 {
-    unsigned char arr[size];
+    unsigned char * arr = new unsigned char[size];
     RAND_bytes(arr, size);
 
     QByteArray buffer = QByteArray(reinterpret_cast<char *>(arr), size);
@@ -67,7 +67,7 @@ QByteArray Cipher::encryptAES(QByteArray passphrase, QByteArray &data)
     char * out;
     int len = data.size();
     int c_len = len + AES_BLOCK_SIZE, f_len = 0;
-    unsigned char * ciphertext = (unsigned char *)malloc(c_len);
+    unsigned char * ciphertext = new unsigned char[c_len];
 
     if (!EVP_EncryptInit_ex(&en, nullptr, nullptr, nullptr, nullptr))
     {
@@ -75,7 +75,7 @@ QByteArray Cipher::encryptAES(QByteArray passphrase, QByteArray &data)
         return QByteArray();
     }
 
-    if (!EVP_EncryptUpdate(&en, ciphertext, &c_len, (unsigned char *)input, len))
+    if (!EVP_EncryptUpdate(&en, ciphertext, &c_len, reinterpret_cast<unsigned char *>(input), len))
     {
         qCritical() << "EVP_EncryptUpdate() failed " << ERR_error_string(ERR_get_error(), nullptr);
         return QByteArray();
@@ -88,7 +88,7 @@ QByteArray Cipher::encryptAES(QByteArray passphrase, QByteArray &data)
     }
 
     len = c_len + f_len;
-    out = (char *)ciphertext;
+    out = reinterpret_cast<char *>(ciphertext);
     EVP_CIPHER_CTX_cipher(&en);
 
     QByteArray encrypted = QByteArray(reinterpret_cast<char *>(ciphertext), len);
@@ -124,8 +124,8 @@ QByteArray Cipher::decryptAES(QByteArray passphrase, QByteArray &data)
     int rounds = 1;
     unsigned char key[KEYSIZE];
     unsigned char iv[IVSIZE];
-    const unsigned char * salt = (const unsigned char *)msalt.constData();
-    const unsigned char * password = (const unsigned char *)passphrase.data();
+    const unsigned char * salt = reinterpret_cast<const unsigned char *>(msalt.constData());
+    const unsigned char * password = reinterpret_cast<const unsigned char *>(passphrase.data());
 
     int i = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), salt, password, passphrase.length(), rounds, key, iv);
 
@@ -149,9 +149,9 @@ QByteArray Cipher::decryptAES(QByteArray passphrase, QByteArray &data)
     int len = data.size();
 
     int p_len = len, f_len = 0;
-    unsigned char * plaintext = (unsigned char *)malloc(p_len + AES_BLOCK_SIZE);
+    unsigned char * plaintext = new unsigned char[p_len + AES_BLOCK_SIZE];
 
-    if (!EVP_DecryptUpdate(&de, plaintext, &p_len, (unsigned char *)input, len))
+    if (!EVP_DecryptUpdate(&de, plaintext, &p_len, reinterpret_cast<unsigned char *>(input), len))
     {
         qCritical() << "EVP_DecryptUpdate() failed " << ERR_error_string(ERR_get_error(), nullptr);
         return QByteArray();
@@ -164,7 +164,7 @@ QByteArray Cipher::decryptAES(QByteArray passphrase, QByteArray &data)
     }
 
     len = p_len + f_len;
-    out = (char *)plaintext;
+    out = reinterpret_cast<char *>(plaintext);
     EVP_CIPHER_CTX_cleanup(&de);
 
     QByteArray decrypted = QByteArray(reinterpret_cast<char *>(plaintext), len);
