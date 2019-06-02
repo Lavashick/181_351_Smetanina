@@ -3,6 +3,8 @@
 #include "dbservice.h"
 #include "client.h"
 
+#include "cipher.h"
+
 void fillDB() {
     if (DBService::createTableUsers())
     {
@@ -53,9 +55,27 @@ void fillDB() {
     }
 }
 
+void testAES()
+{
+    qDebug() << "Tesing AES...";
+
+    Cipher cWrapper;
+    QString passphrase = "password";
+    QByteArray plain = "The man in black fled into the desert and the gunslinger followed...";
+
+    QByteArray encrypted = cWrapper.encryptAES(passphrase.toLatin1(), plain);
+    QByteArray decrypted = cWrapper.decryptAES(passphrase.toLatin1(), encrypted);
+
+    qDebug() << plain;
+    qDebug() << encrypted.toBase64();
+    qDebug() << decrypted;
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    testAES();
 
     Client::createSocket();
     Client::connectToHost("127.0.0.1", 8181);

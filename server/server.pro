@@ -31,3 +31,19 @@ HEADERS += \
     myserver.h \
     dbservice.h \
     console.h
+
+unix|win32: LIBS += -L$$PWD/../OpenSSL/lib/ -lcrypto
+
+INCLUDEPATH += $$PWD/../OpenSSL/include
+DEPENDPATH += $$PWD/../OpenSSL/include
+
+win32:!win32-g++: PRE_TARGETDEPS += $$PWD/../OpenSSL/lib/crypto.lib
+else:unix|win32-g++: PRE_TARGETDEPS += $$PWD/../OpenSSL/lib/libcrypto.a
+
+unix|win32: LIBS += -L$$PWD/../build-Cipher-Desktop_Qt_5_12_3_clang_64bit-Debug/ -lCipher
+
+INCLUDEPATH += $$PWD/../Cipher
+DEPENDPATH += $$PWD/../Cipher
+
+win32:!win32-g++: PRE_TARGETDEPS += $$PWD/../build-Cipher-Desktop_Qt_5_12_3_clang_64bit-Debug/Cipher.lib
+else:unix|win32-g++: PRE_TARGETDEPS += $$PWD/../build-Cipher-Desktop_Qt_5_12_3_clang_64bit-Debug/libCipher.a

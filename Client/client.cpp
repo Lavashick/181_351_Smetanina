@@ -2,6 +2,8 @@
 #include <QTime>
 #include "qbytearrayparcer.h"
 
+#include "cipher.h"
+
 static inline QByteArray IntToArray(qint32 source);
 static QTcpSocket *socket;
 
@@ -11,6 +13,9 @@ static quint16 serverPort;
 static QHash<QTcpSocket*, QByteArray*> buffers; // Буфер для хранения данных, пока блок не будет полностью получен
 static QHash<QTcpSocket*, qint32*> sizes; // Нам нужно сохранить размер, чтобы проверить, получил ли блок полностью
 
+static QByteArray password = "lcBLQUYXzyn1FynxKTYhFumzsFi6jEV2"; // Случайный пароль. Совпадает с паролем на сервере
+
+// Подбирает свободный порт клиенту
 bool Client::createSocket(QObject * parent)
 {
     if (socket == nullptr || !socket->isOpen())
@@ -53,8 +58,9 @@ QByteArray * Client::sendData(QByteArray data)
 {
     if(socket->state() == QTcpSocket::ConnectedState)
     {
-        socket->write(IntToArray(data.size())); // Отправить размер данных
-        socket->write(data); // Отправить сами данные
+        QByteArray encryptedData = Cipher().encryptAES(password, data);
+        socket->write(IntToArray(encryptedData.size())); // Отправить размер данных
+        socket->write(encryptedData); // Отправить сами данные
         socket->waitForBytesWritten(); // Ожидание прочтения данных сервером
         socket->waitForReadyRead(); // Когда сервер ответит, то сокет можно будет считать
 
@@ -95,12 +101,13 @@ QByteArray * Client::read() {
             }
             if (size > 0 && buffer->size() >= size) // Если данные получены полностью, то обрабатываем их
             {
-                QByteArray * data = new QByteArray(buffer->mid(0, size));
+                QByteArray data = buffer->mid(0, size);
+                QByteArray decryptedData = Cipher().decryptAES(password, data);
                 buffer->remove(0, size);
                 size = 0;
                 *s = size;
 
-                return data;
+                return new QByteArray(decryptedData);
             }
         }
     }

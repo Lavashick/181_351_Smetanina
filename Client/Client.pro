@@ -59,3 +59,25 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../openssl/lib/ -lcrypto
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../openssl/lib/ -lcryptod
+else:unix: LIBS += -L$$PWD/../openssl/lib/ -lcrypto
+
+INCLUDEPATH += $$PWD/../openssl/include
+DEPENDPATH += $$PWD/../openssl/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../openssl/lib/libcrypto.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../openssl/lib/libcryptod.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../openssl/lib/crypto.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../openssl/lib/cryptod.lib
+else:unix: PRE_TARGETDEPS += $$PWD/../openssl/lib/libcrypto.a
+
+
+unix|win32: LIBS += -L$$PWD/../build-Cipher-Desktop_Qt_5_12_3_clang_64bit-Debug/ -lCipher
+
+INCLUDEPATH += $$PWD/../Cipher
+DEPENDPATH += $$PWD/../Cipher
+
+win32:!win32-g++: PRE_TARGETDEPS += $$PWD/../build-Cipher-Desktop_Qt_5_12_3_clang_64bit-Debug/Cipher.lib
+else:unix|win32-g++: PRE_TARGETDEPS += $$PWD/../build-Cipher-Desktop_Qt_5_12_3_clang_64bit-Debug/libCipher.a
