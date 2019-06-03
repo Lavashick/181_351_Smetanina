@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QMessageBox>
 #include "dialog.h"
 #include "dbservice.h"
 #include "client.h"
@@ -55,32 +56,37 @@ void fillDB() {
     }
 }
 
-void testAES()
-{
-    qDebug() << "Tesing AES...";
+//void testAES()
+//{
+//    qDebug() << "Tesing AES...";
 
-    Cipher cWrapper;
-    QString passphrase = "password";
-    QByteArray plain = "The man in black fled into the desert and the gunslinger followed...";
+//    Cipher cWrapper;
+//    QString passphrase = "password";
+//    QByteArray plain = "The man in black fled into the desert and the gunslinger followed...";
 
-    QByteArray encrypted = cWrapper.encryptAES(passphrase.toLatin1(), plain);
-    QByteArray decrypted = cWrapper.decryptAES(passphrase.toLatin1(), encrypted);
+//    QByteArray encrypted = cWrapper.encryptAES(passphrase.toLatin1(), plain);
+//    QByteArray decrypted = cWrapper.decryptAES(passphrase.toLatin1(), encrypted);
 
-    qDebug() << plain;
-    qDebug() << encrypted.toBase64();
-    qDebug() << decrypted;
-}
+//    qDebug() << plain;
+//    qDebug() << encrypted.toBase64();
+//    qDebug() << decrypted;
+//}
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    testAES();
+//    testAES();
 
     // ТУТ МОЖНО ПОДКЛЮЧИТЬ КОМП ПО АЙПИ
 
     Client::createSocket();
-    Client::connectToHost("192.168.0.13", 8181); // Локальный - 127.0.0.1
+    if (!Client::connectToHost("192.168.0.13", 8181)) // Локальный - 127.0.0.1
+    {
+        QMessageBox::warning(nullptr, "Network error", "No connection to server");
+        QApplication::quit();
+        return 0;
+    }
 
     fillDB();
 

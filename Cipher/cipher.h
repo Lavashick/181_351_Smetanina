@@ -3,22 +3,28 @@
 
 #include <QDebug>
 
-#include <openssl/engine.h>
-#include <openssl/conf.h>
-#include <openssl/aes.h>
+#include <openssl/engine.h> // Криптографический движок
+#include <openssl/conf.h> // Библиотека конфигурационных файлов
+#include <openssl/aes.h> // Алгоритм шифрования AES
 
 #define KEYSIZE 32 // Размер ключа в байтах
-#define IVSIZE 32 //
-#define BLOCKSIZE 256
-#define SALTSIZE 8
+#define IVSIZE 32 // Размер анациализирующего вектора
+#define BLOCKSIZE 256 // Размер блока входных данных
+#define SALTSIZE 8 // Размер данных соли
 
 class Cipher
 {
 public:
-    Cipher();
-    ~Cipher();
+    Cipher(); // Конструктор
+    ~Cipher(); // Деструктор
 
+    /**
+     * @brief Шифровка в AES
+     */
     QByteArray encryptAES(QByteArray passphrase, QByteArray &data);
+    /**
+     * @brief Расшифровка в AES
+     */
     QByteArray decryptAES(QByteArray passphrase, QByteArray &data);
 
 private:

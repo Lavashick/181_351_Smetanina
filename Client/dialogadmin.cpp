@@ -1,6 +1,7 @@
 #include "dialogadmin.h"
 #include "ui_dialogadmin.h"
 #include "dialog.h"
+#include "dialogcreateoreditdata.h"
 
 void DialogAdmin::updateUserTable()
 {
@@ -21,7 +22,7 @@ void DialogAdmin::updateUserTable()
         model->setData(index, indexValue);
 
         index = model->index(row, 2);
-        indexValue = QString::number(users.at(row).degree);
+        indexValue = UserDegreeToString(users.at(row).degree);
         model->setData(index, indexValue);
     }
 }
@@ -81,39 +82,32 @@ DialogAdmin::~DialogAdmin()
 void DialogAdmin::configure() {
     switch (user->degree) {
     //
-    case 1:
+    case UserDegrees::admin:
         users = DBService::getUsers();
         tempUsers = users;
         updateUserTable();
-        ui->editButton->setText("Edit table of users");
+        ui->editButton->setText("Add user");
         break;
-    case 2:
+    case UserDegrees::moderator:
         humans = DBService::getHumans(true);
         tempHumans = humans;
         updateHumanTable();
-        ui->editButton->setText("Edit this table");
+        ui->editButton->setText("Add human");
         break;
-    case 3:
+    case UserDegrees::user:
         humans = DBService::getHumans(true);
         tempHumans = humans;
         updateHumanTable();
         ui->editButton->hide();
         ui->deleting->hide();
         break;
-    default:
-        break;
     }
-}
-
-// Закрытие текущего окна
-void DialogAdmin::on_pushButton_7_clicked()
-{
 }
 
 void DialogAdmin::on_deleting_clicked()
 {
     int rowIndex = ui->tableView->selectionModel()->currentIndex().row();
-    if (user->degree == 1)
+    if (user->degree == admin)
     {
         QString login = model->index(rowIndex, 0).data().toString();
         users.removeAt(rowIndex);
@@ -129,9 +123,9 @@ void DialogAdmin::on_deleting_clicked()
 
 void DialogAdmin::on_close_clicked()
 {
-    this->hide();
+    this->close();
     this->user = nullptr;
-    Dialog * parent = (Dialog *)(this->parentWidget());
+    Dialog * parent = reinterpret_cast<Dialog *>(this->parentWidget());
     parent->resetPasswordField();
     parent->show();
 }
@@ -142,7 +136,7 @@ void DialogAdmin::on_searchButton_clicked()
 
 void DialogAdmin::on_updateButton_clicked()
 {
-    if (user->degree == 1) {
+    if (user->degree == admin) {
         users = DBService::getUsers();
         updateUserTable();
     } else {
@@ -156,7 +150,7 @@ void DialogAdmin::on_searchEdit_textChanged(const QString &arg1)
     QString str = ui->searchEdit->text().toLower();
     if (str.isEmpty())
     {
-        if (user->degree == 1) {
+        if (user->degree == admin) {
             users = tempUsers;
             updateUserTable();
         } else {
@@ -164,7 +158,7 @@ void DialogAdmin::on_searchEdit_textChanged(const QString &arg1)
             updateHumanTable();
         }
     } else {
-        if (user->degree == 1) {
+        if (user->degree == admin) {
             users.clear();
             for (int i = 0; i < tempUsers.count(); ++i) {
                 if (tempUsers.at(i).login.toLower().contains(str))
@@ -180,4 +174,32 @@ void DialogAdmin::on_searchEdit_textChanged(const QString &arg1)
             updateHumanTable();
         }
     }
+}
+
+#include "human.h"
+
+void DialogAdmin::on_tableView_doubleClicked(const QModelIndex &index)
+{
+    DialogCreateOrEditData * dialog;
+    if (users.isEmpty())
+    {
+        dialog = new DialogCreateOrEditData(editHumanType, nullptr, new Human(humans.at(index.row())), this);
+    } else
+    {
+        dialog = new DialogCreateOrEditData(editUserType, new User(users.at(index.row())), nullptr, this);
+    }
+    dialog->show();
+}
+
+void DialogAdmin::on_editButton_clicked()
+{
+    DialogCreateOrEditData * dialog;
+    if (users.isEmpty())
+    {
+        dialog = new DialogCreateOrEditData(createHumanType, nullptr, nullptr, this);
+    } else
+    {
+        dialog = new DialogCreateOrEditData(createUserType, nullptr, nullptr, this);
+    }
+    dialog->show();
 }

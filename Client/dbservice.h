@@ -42,7 +42,7 @@ public:
      * @brief Запросить пользователя по определенному логину
      */
     static User * getUser(QString login);
-    static Human * getHuman(int id);
+    static Human * getHuman(int id, bool isWithPansionat = false);
     static City * getCity(int id);
     static Pansionat * getPansionat(int id);
     /**
@@ -59,6 +59,11 @@ public:
     static QList<Human> getHumans( bool isWithPansionats = false, QString firstName = "", QString lastName = "" );
     static QList<City> getCities( QString title = "" );
     static QList<Pansionat> getPansionats( bool isWithCities = false, QString title = "" );
+
+    static bool editUser(QString login, QString newLogin, QString newPassword, int newDegree);
+    static bool editHuman(int id, QString newName, QString newLastName, int newAge, QString newPansionat);
+
+    static QString getLastError();
 };
 
 #endif // DBSERVICE_H

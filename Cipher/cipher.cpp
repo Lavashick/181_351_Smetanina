@@ -25,7 +25,11 @@ QByteArray Cipher::randomBytes(int size)
     return buffer;
 }
 
-
+QByteArray debugCritical(QString msg)
+{
+    qCritical() << msg << ERR_error_string(ERR_get_error(), nullptr);
+    return QByteArray();
+}
 
 
 
@@ -46,223 +50,98 @@ QByteArray Cipher::encryptAES(QByteArray passphrase, QByteArray &data)
     const unsigned char * salt = reinterpret_cast<const unsigned char *>(msalt.constData()); // Перевод соли с unsigned char*
     const unsigned char * password = reinterpret_cast<const unsigned char *>(passphrase.constData()); // Перевод ключа с unsigned char*
 
-    int i = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), salt, password, passphrase.length(), rounds, key, iv);
+    int i = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), salt, password, passphrase.length(), rounds, key, iv); // Формирование ключа относительно входящих данных
 
-    if (i != KEYSIZE)
-    {
-        qCritical() << "EVP_BytesToKey() error: " << ERR_error_string(ERR_get_error(), nullptr);
-        return QByteArray();
-    }
+    if (i != KEYSIZE) // Проверяет корректность генерации ключа
+        return debugCritical("EVP_BytesToKey() error: ");
 
-    EVP_CIPHER_CTX en;
-    EVP_CIPHER_CTX_init(&en);
+    EVP_CIPHER_CTX en; // Структура шифрования
+    EVP_CIPHER_CTX_init(&en); // Создание структуры шифрования
 
-    if (!EVP_EncryptInit_ex(&en, EVP_aes_256_cbc(), nullptr, key, iv))
-    {
-        qCritical() << "EVP_EncryptInit() failed " << ERR_error_string(ERR_get_error(), nullptr);
-        return QByteArray();
-    }
+    if (!EVP_EncryptInit_ex(&en, EVP_aes_256_cbc(), nullptr, key, iv)) // Устанавливает контекст шифрования с заданным типом шифрования
+        return debugCritical("EVP_EncryptInit_ex() failed ");
 
-    char * input = data.data();
-    char * out;
-    int len = data.size();
-    int c_len = len + AES_BLOCK_SIZE, f_len = 0;
-    unsigned char * ciphertext = new unsigned char[c_len];
+    char * input = data.data(); // Переводит QByteArray в char *
+    int len = data.size(); // Размер исходных данных
+    int c_len = len + AES_BLOCK_SIZE; // Предполагаемый размер шифрованных данных с запасом ( при разбиении данных на блоки возможно зашифрованные данные будут большего размера, чем исходные )
+    int f_len = 0; // Финальный размер зашифрованных данных
+    unsigned char * ciphertext = new unsigned char[c_len]; // Хранилище зашифрованных данных
 
-    if (!EVP_EncryptInit_ex(&en, nullptr, nullptr, nullptr, nullptr))
-    {
-        qCritical() << "EVP_EncryptInit_ex() failed " << ERR_error_string(ERR_get_error(), nullptr);
-        return QByteArray();
-    }
+    if (!EVP_EncryptInit_ex(&en, nullptr, nullptr, nullptr, nullptr)) // Инициализация шифрования
+        return debugCritical("EVP_EncryptInit_ex() failed ");
 
-    if (!EVP_EncryptUpdate(&en, ciphertext, &c_len, reinterpret_cast<unsigned char *>(input), len))
-    {
-        qCritical() << "EVP_EncryptUpdate() failed " << ERR_error_string(ERR_get_error(), nullptr);
-        return QByteArray();
-    }
+    if (!EVP_EncryptUpdate(&en, ciphertext, &c_len, reinterpret_cast<unsigned char *>(input), len)) // Шифрование блоков без частичного (последнего) блока
+        return debugCritical("EVP_EncryptUpdate() failed ");
 
-    if (!EVP_EncryptFinal(&en, ciphertext + c_len, &f_len))
-    {
-        qCritical() << "EVP_EncryptFinal() failed " << ERR_error_string(ERR_get_error(), nullptr);
-        return QByteArray();
-    }
+    if (!EVP_EncryptFinal(&en, ciphertext + c_len, &f_len)) // Шифрование частичного блока
+        return debugCritical("EVP_EncryptFinal() failed ");
 
-    len = c_len + f_len;
-    out = reinterpret_cast<char *>(ciphertext);
+    len = c_len + f_len; // Суммируется то, что сформировалось в update и final
     EVP_CIPHER_CTX_cipher(&en);
 
-    QByteArray encrypted = QByteArray(reinterpret_cast<char *>(ciphertext), len);
-    QByteArray finished;
+    QByteArray encrypted = QByteArray(reinterpret_cast<char *>(ciphertext), len); // Зашифрованные данные в encrypted
+
+    QByteArray finished; // Зашифрованные данные с солью
     finished.append("Salted__");
-    finished.append(msalt);
-    finished.append(encrypted);
+    finished.append(msalt); // Добавление соли
+    finished.append(encrypted); // Добавление зашифрованных данных
 
-    free(ciphertext);
+    free(ciphertext); // Освобождение памяти
 
-    return finished;
+    return finished; // Возврат
 }
-
-
-
-
-
 
 // Дешифровка AES
 QByteArray Cipher::decryptAES(QByteArray passphrase, QByteArray &data)
 {
-    QByteArray msalt;
-    if (QString(data.mid(0, 8)) == "Salted__")
+    QByteArray msalt; // Переменная, хранящая соль
+    if (QString(data.mid(0, 8)) == "Salted__") // Указание на содержание соли
     {
-        msalt = data.mid(8, 8);
-        data = data.mid(16);
+        msalt = data.mid(8, SALTSIZE); // Подстрока
+        data = data.mid(8 + SALTSIZE); // Подстрока
     }
     else {
         qWarning() << "Could not load salt from data!";
-        msalt = randomBytes(SALTSIZE);
+        msalt = randomBytes(SALTSIZE); // Рандомный генератор соли
     }
 
-    int rounds = 1;
-    unsigned char key[KEYSIZE];
-    unsigned char iv[IVSIZE];
-    const unsigned char * salt = reinterpret_cast<const unsigned char *>(msalt.constData());
-    const unsigned char * password = reinterpret_cast<const unsigned char *>(passphrase.data());
+    int rounds = 1; // Кол-во прохождений
+    unsigned char key[KEYSIZE]; // Переменная для ключа
+    unsigned char iv[IVSIZE]; // Переменная для инициализирующего вектора
+    const unsigned char * salt = reinterpret_cast<const unsigned char *>(msalt.constData()); // Перевод соли с unsigned char*
+    const unsigned char * password = reinterpret_cast<const unsigned char *>(passphrase.data()); // Перевод ключа с unsigned char*
 
-    int i = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), salt, password, passphrase.length(), rounds, key, iv);
+    int i = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), salt, password, passphrase.length(), rounds, key, iv); // Формирование ключа относительно входящих данных
 
     if (i != KEYSIZE)
-    {
-        qCritical() << "EVP_BytesToKey() error: " << ERR_error_string(ERR_get_error(), nullptr);
-        return QByteArray();
-    }
+        return debugCritical("EVP_BytesToKey() error: "); // Проверяет корректность генерации ключа
 
-    EVP_CIPHER_CTX de;
-    EVP_CIPHER_CTX_init(&de);
+    EVP_CIPHER_CTX de; // Структура дешифрования
+    EVP_CIPHER_CTX_init(&de);  // Создание структуры дешифрования
 
     if (!EVP_DecryptInit_ex(&de, EVP_aes_256_cbc(), nullptr, key, iv))
-    {
-        qCritical() << "EVP_DecryptInit_ex() failed " << ERR_error_string(ERR_get_error(), nullptr);
-        return QByteArray();
-    }
+        return debugCritical("EVP_DecryptInit_ex() failed ");
 
-    char * input = data.data();
-    char * out;
-    int len = data.size();
+    char * input = data.data(); // Переводит QByteArray в char *
+    char * out; // Размер исходных данных
+    int len = data.size();  // Размер исходных данных
 
     int p_len = len, f_len = 0;
-    unsigned char * plaintext = new unsigned char[p_len + AES_BLOCK_SIZE];
+    unsigned char * plaintext = new unsigned char[p_len + AES_BLOCK_SIZE]; // Предполагаемый размер шифрованных данных с запасом ( при разбиении данных на блоки возможно зашифрованные данные будут большего размера, чем исходные )
 
-    if (!EVP_DecryptUpdate(&de, plaintext, &p_len, reinterpret_cast<unsigned char *>(input), len))
-    {
-        qCritical() << "EVP_DecryptUpdate() failed " << ERR_error_string(ERR_get_error(), nullptr);
-        return QByteArray();
-    }
+    if (!EVP_DecryptUpdate(&de, plaintext, &p_len, reinterpret_cast<unsigned char *>(input), len)) // Дешифрование блоков без частичного (последнего) блока
+        return debugCritical("EVP_DecryptUpdate() failed ");
 
     if (!EVP_DecryptFinal_ex(&de, plaintext + p_len, &f_len))
-    {
-        qCritical() << "EVP_DecryptFinal_ex() failed " << ERR_error_string(ERR_get_error(), nullptr);
-        return QByteArray();
-    }
+        return debugCritical("EVP_DecryptFinal_ex() failed ");
 
-    len = p_len + f_len;
+    len = p_len + f_len; // Суммируется то, что сформировалось в update и final
     out = reinterpret_cast<char *>(plaintext);
     EVP_CIPHER_CTX_cleanup(&de);
 
-    QByteArray decrypted = QByteArray(reinterpret_cast<char *>(plaintext), len);
-    free(plaintext);
+    QByteArray decrypted = QByteArray(reinterpret_cast<char *>(plaintext), len); // Окончательный текст в виде QByteArray
+    free(plaintext); // Очистить память
 
     return decrypted;
 }
 
-
-//QString Chipher::encrypt(QString text)
-//{
-//    unsigned char *plaintext = getUnsignedCharFromString(text); // исходный текст
-//    int plaintext_len = strlen((char *)plaintext); // длина текста
-//    unsigned char *key = (unsigned char *)"0123456789"; // пароль (ключ)
-//    unsigned char *iv = (unsigned char *)"0123456789012345"; // инициализирующий вектор, рандомайзер
-//    unsigned char cryptedtext[256]; // зашифрованный результат
-
-//    // 1. Создаётся указатель на несуществующую структуру
-//    // структура - тип данных в C++, близка к КЛАССУ, различия минимальны
-//    EVP_CIPHER_CTX *ctx; // structure
-
-//    // 2. Для указателя создаётся пустая структура настроек (метод, ключ, вектор инициализации и т.д.)
-//    ctx = EVP_CIPHER_CTX_new(); // создание структуры с настройками метода
-
-//    // 3. Структура EVP_CIPHER_CTX заполняется настройками
-//    EVP_EncryptInit_ex(ctx, // ссылка на объект/структуру, куда заносятся параметры
-//        EVP_aes_256_cbc(), // ссылка на шифрующее ядро AES 256 (функцию с алгоритмом)
-//        NULL,
-//        key, // ключ/пароль/секрет
-//        iv); // рандомайзер (случайный начальный вектор)
-
-//    // 4. САМ ПРОЦЕСС ШИФРОВАНИЯ - ФУКНЦИЯ EVP_EncryptUpdate
-//    int len;
-//    EVP_EncryptUpdate(ctx, // объект с настройками
-//        cryptedtext, // входной параметр: ссылка, куда помещать зашифрованные данные
-//        &len, // выходной параметр: длина полученного шифра
-//        plaintext, // входной параметр: что шифровать
-//        plaintext_len); // входной параметр : длина входных данных
-//    int cryptedtext_len = len;
-
-//    // 5. Финализация процесса шифрования
-//    // необходима, если последний блок заполнен данными не полностью
-//    EVP_EncryptFinal_ex(ctx, cryptedtext + len, &len);
-//    cryptedtext_len += len;
-
-//    // 6. Удаление структуры
-//    EVP_CIPHER_CTX_free(ctx);
-
-//    return getStringFromUnsignedChar(cryptedtext);
-//}
-
-//QString Chipher::decrypt(QString text)
-//{
-//    unsigned char * cryptedtext = getUnsignedCharFromString(text); // зашифрованный результат
-//    int cryptedtext_len = 10;
-//    int len = 10;
-//    // РАСШИФРОВКА
-//    unsigned char *key = (unsigned char *)"0123456789"; // пароль (ключ)
-//    unsigned char *iv = (unsigned char *)"0123456789012345"; // инициализирующий вектор, рандомайзер
-//    unsigned char decryptedtext[256]; // расшифрованный результат
-
-//    EVP_CIPHER_CTX *ctx; // structure
-
-//    // 1.
-//    ctx = EVP_CIPHER_CTX_new(); // создание структуры с настройками метода
-
-//    // 2.
-//    EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv); // инициализация методом AES, ключом и вектором
-
-//    // 3.
-//    EVP_DecryptUpdate(ctx, decryptedtext, &len, cryptedtext, cryptedtext_len);  // СОБСТВЕННО, ШИФРОВАНИЕ
-
-//    // 4.
-//    int dectypted_len = len;
-//    EVP_DecryptFinal_ex(ctx, decryptedtext + len, &len);
-
-//    // 5.
-//    dectypted_len += len;
-//    EVP_CIPHER_CTX_free(ctx);
-//    decryptedtext[dectypted_len] = '\0';
-//    cout << decryptedtext << endl;
-//    cout << cryptedtext << endl;
-
-//    // --- шифрование файла
-//    // производится точно так же, но порциями, в цикле
-//    // в цикле
-//    /*
-//        1) открытие файлов и настройка параметров OpenSSL
-//        2) считывание первого блока
-//        3) while(считанный_фрагмент > 0)
-//        {
-//            4) шифрование считанного
-//            5) запись зашифрованного массива в файл
-//            6) считывание следующего фрагмента
-//        }
-//        7) применение финализирующей фукнции
-//        8) запись финализирующего блока в файл
-//        9) закрытие файлов
-//    */
-//    getchar();
-//}

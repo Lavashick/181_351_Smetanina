@@ -27,6 +27,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    dialogcreateoreditdata.cpp \
         main.cpp \
     client.cpp \
     dbservice.cpp \
@@ -41,7 +42,9 @@ SOURCES += \
 
 HEADERS += \
     client.h \
+    createoreditdatatypes.h \
     dbservice.h \
+    dialogcreateoreditdata.h \
     user.h \
     qbytearrayparcer.h \
     dialog.h \
@@ -49,11 +52,13 @@ HEADERS += \
     hash.h \
     city.h \
     human.h \
-    pansionat.h
+    pansionat.h \
+    userdegrees.h
 
 FORMS += \
     dialog.ui \
-    dialogadmin.ui
+    dialogadmin.ui \
+    dialogcreateoreditdata.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

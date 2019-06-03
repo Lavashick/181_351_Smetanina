@@ -39,6 +39,9 @@ private:
      * @brief Чтение сервером ответа от клиента
      */
     static QByteArray * read();
+
+private slots:
+    static void disconnected();
 };
 
 #endif // CLIENT_H

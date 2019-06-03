@@ -13,6 +13,13 @@
 #define TABLE_PANSIONAT_CITY_NAME "pansionat_city"
 #define TABLE_HUMAN_PANSIONAT_NAME "human_pansionat"
 
+static QString lastError = "";
+
+QString DBService::getLastError()
+{
+    return lastError;
+}
+
 // Создание таблицы юзеров
 bool DBService::createTableUsers()
 {
@@ -26,7 +33,7 @@ bool DBService::createTableUsers()
         return false;
     if (QByteArrayParcer::toJsonArray(*response) == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
     return true;
@@ -43,7 +50,7 @@ bool DBService::createTableCities()
         return false;
     if (QByteArrayParcer::toJsonArray(*response) == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
     return true;
@@ -60,7 +67,7 @@ bool DBService::createTablePansionats()
         return false;
     if (QByteArrayParcer::toJsonArray(*response) == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
     return true;
@@ -79,7 +86,7 @@ bool DBService::createTableHumans()
         return false;
     if (QByteArrayParcer::toJsonArray(*response) == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
     return true;
@@ -98,7 +105,7 @@ bool DBService::createTablePansionatCity()
         return false;
     if (QByteArrayParcer::toJsonArray(*response) == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
     return true;
@@ -117,7 +124,7 @@ bool DBService::createTableHumanPansionat()
         return false;
     if (QByteArrayParcer::toJsonArray(*response) == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
     return true;
@@ -133,7 +140,7 @@ bool DBService::checkUser(QString login, QString password)
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
     if (array->isEmpty())
@@ -151,7 +158,7 @@ User * DBService::getUser(QString login)
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return nullptr;
     }
     if (array->isEmpty())
@@ -168,7 +175,7 @@ City * DBService::getCity(int id)
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return nullptr;
     }
     if (array->isEmpty())
@@ -185,7 +192,7 @@ Pansionat * DBService::getPansionat(int id)
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return nullptr;
     }
     if (array->isEmpty())
@@ -193,16 +200,48 @@ Pansionat * DBService::getPansionat(int id)
     return new Pansionat(array->first().toObject());
 }
 
+Human * DBService::getHuman(int id, bool isWithPansionat)
+{
+    QString s = QString("SELECT * FROM %1 WHERE id = %2").arg(TABLE_HUMANS_NAME).arg(id);
+    QByteArray * response = Client::sendData(s);
+    if (response == nullptr)
+        return nullptr;
+    QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
+    if (array == nullptr)
+    {
+        lastError = QByteArrayParcer::toString(*response);
+        return nullptr;
+    }
+    if (array->isEmpty())
+        return nullptr;
+
+    Human *human = new Human(array->first().toObject());
+
+    if (isWithPansionat)
+    {
+        s = QString("SELECT %1.id, %1.title FROM %1, %2 \nWHERE %2.pansionat_id = %1.id AND %2.human_id = %3").arg(TABLE_PANSIONATS_NAME).arg(TABLE_HUMAN_PANSIONAT_NAME).arg(human->id);
+        response = Client::sendData(s);
+        QJsonArray * newArray = QByteArrayParcer::toJsonArray(*response);
+        if (newArray == nullptr)
+            lastError = QByteArrayParcer::toString(*response);
+
+        Pansionat * pansionat = new Pansionat(newArray->first().toObject());
+        human->pansionat = pansionat;
+    }
+
+    return human;
+}
+
 bool DBService::deleteUser(QString login)
 {
-    QString s = QString("DELETE FROM %1 WHERE login = %2").arg(TABLE_USERS_NAME).arg(login);
+    QString s = QString("DELETE FROM %1 WHERE login = '%2'").arg(TABLE_USERS_NAME).arg(login);
     QByteArray * response = Client::sendData(s);
     if (response == nullptr)
         return false;
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
     return true;
@@ -217,7 +256,7 @@ bool DBService::addUser(QString login, QString password, int degree)
         return false;
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr) {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
     return true;
@@ -232,7 +271,7 @@ bool DBService::addCity(QString title)
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
     return true;
@@ -249,7 +288,7 @@ bool DBService::addPansionat(QString title, QString fromCity)
     QJsonArray * array1 = QByteArrayParcer::toJsonArray(*response1);
     if (array1 == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response1);
+        lastError = QByteArrayParcer::toString(*response1);
         return false;
     }
     if (array1->count() == 0)
@@ -264,7 +303,7 @@ bool DBService::addPansionat(QString title, QString fromCity)
         return false;
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr) {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
 
@@ -277,7 +316,7 @@ bool DBService::addPansionat(QString title, QString fromCity)
     QJsonArray * array2 = QByteArrayParcer::toJsonArray(*response2);
     if (array2 == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response2);
+        lastError = QByteArrayParcer::toString(*response2);
         return false;
     }
     if (array2->count() == 0)
@@ -292,7 +331,7 @@ bool DBService::addPansionat(QString title, QString fromCity)
         return false;
     QJsonArray * array4 = QByteArrayParcer::toJsonArray(*response4);
     if (array4 == nullptr) {
-        qDebug() << QByteArrayParcer::toString(*response4);
+        lastError = QByteArrayParcer::toString(*response4);
         return false;
     }
 
@@ -302,7 +341,7 @@ bool DBService::addPansionat(QString title, QString fromCity)
 bool DBService::addHuman(QString firstName, QString lastName, int age, QString fromPansionat)
 {
     // Поиск пансионата
-    QString f = QString("SELECT * FROM %1 WHERE title='%2'").arg(TABLE_PANSIONATS_NAME).arg(fromPansionat);
+    QString f = QString("SELECT * FROM %1 WHERE title = '%2'").arg(TABLE_PANSIONATS_NAME).arg(fromPansionat);
     QByteArray * response1 = Client::sendData(f);
     if (response1 == nullptr)
         return false;
@@ -310,7 +349,7 @@ bool DBService::addHuman(QString firstName, QString lastName, int age, QString f
     QJsonArray * array1 = QByteArrayParcer::toJsonArray(*response1);
     if (array1 == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response1);
+        lastError = QByteArrayParcer::toString(*response1);
         return false;
     }
     if (array1->count() == 0)
@@ -325,7 +364,7 @@ bool DBService::addHuman(QString firstName, QString lastName, int age, QString f
         return false;
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr) {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
 
@@ -338,7 +377,7 @@ bool DBService::addHuman(QString firstName, QString lastName, int age, QString f
     QJsonArray * array2 = QByteArrayParcer::toJsonArray(*response2);
     if (array2 == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response2);
+        lastError = QByteArrayParcer::toString(*response2);
         return false;
     }
     if (array2->count() == 0)
@@ -354,7 +393,7 @@ bool DBService::addHuman(QString firstName, QString lastName, int age, QString f
     QJsonArray * array4 = QByteArrayParcer::toJsonArray(*response4);
     if (array4 == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response4);
+        lastError = QByteArrayParcer::toString(*response4);
         return false;
     }
 
@@ -376,7 +415,7 @@ QList<User> DBService::getUsers(QString login)
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return users;
     }
     for (int i = 0; i < array->count(); i++)
@@ -388,12 +427,11 @@ QList<Human> DBService::getHumans(bool isWithPansionats, QString firstName, QStr
 {
     QString s = QString("SELECT * FROM %1").arg(TABLE_HUMANS_NAME);
     if (!firstName.isEmpty()) {
-        s += QString(" WHERE first_name = %1").arg(firstName);
+        s += QString(" WHERE first_name = '%1'").arg(firstName);
         if (!lastName.isEmpty())
-            s += QString(", last_name = %1").arg(lastName);
+            s += QString(" AND last_name = '%1'").arg(lastName);
     } else if (!lastName.isEmpty())
-        s += QString(" WHERE last_name = %1").arg(lastName);
-    Client::sendData(s);
+        s += QString(" WHERE last_name = '%1'").arg(lastName);
 
     QList<Human> humans = QList<Human>();
 
@@ -403,7 +441,7 @@ QList<Human> DBService::getHumans(bool isWithPansionats, QString firstName, QStr
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return humans;
     }
     for (int i = 0; i < array->count(); i++)
@@ -416,7 +454,7 @@ QList<Human> DBService::getHumans(bool isWithPansionats, QString firstName, QStr
             response = Client::sendData(s);
             QJsonArray * newArray = QByteArrayParcer::toJsonArray(*response);
             if (newArray == nullptr)
-                qDebug() << QByteArrayParcer::toString(*response);
+                lastError = QByteArrayParcer::toString(*response);
 
             Pansionat * pansionat = new Pansionat(newArray->first().toObject());
             human.pansionat = pansionat;
@@ -442,7 +480,7 @@ QList<City> DBService::getCities(QString title)
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return cities;
     }
     for (int i = 0; i < array->count(); i++)
@@ -465,7 +503,7 @@ QList<Pansionat> DBService::getPansionats(bool isWithCities, QString title)
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return pansionats;
     }
     for (int i = 0; i < array->count(); i++) {
@@ -477,7 +515,7 @@ QList<Pansionat> DBService::getPansionats(bool isWithCities, QString title)
             response = Client::sendData(s);
             QJsonArray * newArray = QByteArrayParcer::toJsonArray(*response);
             if (newArray == nullptr)
-                qDebug() << QByteArrayParcer::toString(*response);
+                lastError = QByteArrayParcer::toString(*response);
 
             City * city = new City(newArray->first().toObject());
             pansionat.city = city;
@@ -498,7 +536,7 @@ bool DBService::deleteHuman(int id)
     QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
 
@@ -509,8 +547,64 @@ bool DBService::deleteHuman(int id)
     array = QByteArrayParcer::toJsonArray(*response);
     if (array == nullptr)
     {
-        qDebug() << QByteArrayParcer::toString(*response);
+        lastError = QByteArrayParcer::toString(*response);
         return false;
     }
+    return true;
+}
+
+bool DBService::editUser(QString login, QString newLogin, QString newPassword, int newDegree)
+{
+    QString s = QString("UPDATE %1 SET login = '%2', password = '%3', degree = %4 WHERE login = '%5'")
+            .arg(TABLE_USERS_NAME)
+            .arg(newLogin)
+            .arg(Hash::start(newPassword))
+            .arg(newDegree)
+            .arg(login);
+    QByteArray * response = Client::sendData(s);
+    if (response == nullptr)
+        return false;
+    QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
+    if (array == nullptr)
+    {
+        lastError = QByteArrayParcer::toString(*response);
+        return false;
+    }
+    return true;
+}
+
+bool DBService::editHuman(int id, QString newName, QString newLastName, int newAge, QString newPansionat)
+{
+    QString s = QString("UPDATE %1 SET first_name = '%2', last_name = '%3', age = %4 WHERE id = %5")
+            .arg(TABLE_HUMANS_NAME)
+            .arg(newName)
+            .arg(newLastName)
+            .arg(newAge)
+            .arg(id);
+    QByteArray * response = Client::sendData(s);
+    if (response == nullptr)
+        return false;
+    QJsonArray * array = QByteArrayParcer::toJsonArray(*response);
+    if (array == nullptr)
+    {
+        lastError = QByteArrayParcer::toString(*response);
+        return false;
+    }
+
+    s = QString("UPDATE %1 SET pansionat_id = (SELECT id FROM %2 WHERE title = '%3') WHERE human_id = %4")
+            .arg(TABLE_HUMAN_PANSIONAT_NAME)
+            .arg(TABLE_PANSIONATS_NAME)
+            .arg(newPansionat)
+            .arg(id);
+    response = Client::sendData(s);
+    if (response == nullptr)
+        return false;
+    array = QByteArrayParcer::toJsonArray(*response);
+    if (array == nullptr)
+    {
+        lastError = QByteArrayParcer::toString(*response);
+        return false;
+    }
+
     return true;
 }

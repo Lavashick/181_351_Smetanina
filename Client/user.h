@@ -4,6 +4,7 @@
 #include <QString>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include "userdegrees.h"
 
 /**
  * @brief Класс пользователей
@@ -14,7 +15,7 @@ public:
 
     QString login;
     QString password;
-    int degree;
+    UserDegrees degree;
 };
 
 

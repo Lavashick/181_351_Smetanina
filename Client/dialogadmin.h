@@ -19,9 +19,13 @@ public:
 
     void configure();
 
-private slots:
-    void on_pushButton_7_clicked();
+    QList<User> users;
+    void updateUserTable();
 
+    QList<Human> humans;
+    void updateHumanTable();
+
+private slots:
     void on_deleting_clicked();
 
     void on_close_clicked();
@@ -32,19 +36,19 @@ private slots:
 
     void on_searchEdit_textChanged(const QString &arg1);
 
+    void on_tableView_doubleClicked(const QModelIndex &index);
+
+    void on_editButton_clicked();
+
 private:
     User* user;
 
     Ui::DialogAdmin *ui;
     QStandardItemModel *model;
 
-    QList<User> users;
     QList<User> tempUsers;
-    void updateUserTable();
 
-    QList<Human> humans;
     QList<Human> tempHumans;
-    void updateHumanTable();
 };
 
 #endif // DIALOGADMIN_H
